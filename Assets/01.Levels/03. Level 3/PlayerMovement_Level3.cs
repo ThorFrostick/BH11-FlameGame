@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement_Level3 : MonoBehaviour
-{
-    // Start is called before the first frame update
+{ 
     void Start()
     {
         
