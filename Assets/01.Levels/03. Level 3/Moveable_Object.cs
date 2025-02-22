@@ -13,7 +13,7 @@ public class Moveable_Object : MonoBehaviour
 
     private float m_speed
     {
-        get { return m_speed * g_perSpeed; }
+        get { return m_maxSpeed * g_perSpeed; }
     }
 
     private int m_count;
