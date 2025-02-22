@@ -34,8 +34,8 @@ public class Moveable_Object : MonoBehaviour
     {
         if (Vector2.Distance(transform.position, m_waypoints[m_count].transform.position) > 0.5f)
         {
-            Vector2 direction = (m_waypoints[m_count].transform.position - transform.position).normalized;
-            transform.position += (Vector3)(direction * m_speed * Time.deltaTime);
+            Vector3 direction = (m_waypoints[m_count].transform.position - transform.position).normalized;
+            transform.position += direction * m_speed * Time.deltaTime;
         }
         else
         {
