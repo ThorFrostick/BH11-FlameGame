@@ -14,6 +14,7 @@ public class PlayerMovement_Level3 : MonoBehaviour
     
     [Header("Detection")]
     [SerializeField] private LayerMask m_groundLayer;
+    [SerializeField] private LayerMask m_moveablePlatformLayer;
 
     // Use a shorter distance to check if we're grounded.
     [SerializeField] private float m_groundCheckDist = 0.5f;
@@ -34,15 +35,21 @@ public class PlayerMovement_Level3 : MonoBehaviour
     private bool m_isFaceRight;
     private Vector2 m_prevPosition;
     
+    private Moveable_Object m_moveableObject;
+    private Vector2 m_moveableVelocity;
+    
     private void Start()
     {
         m_rigidBody = GetComponent<Rigidbody2D>();
         m_currentState = PlayerStates.Still;
+        m_moveableObject = FindObjectOfType<Moveable_Object>();
     }
 
     private void Update()
     {
         StateMachine();
+        AttachToPlatform();
+
     }
 
     private void FixedUpdate()
@@ -138,8 +145,10 @@ public class PlayerMovement_Level3 : MonoBehaviour
     /// </summary>
     private void Jump()
     {
-        m_rigidBody.AddForce(new Vector2(0, m_jumpForce), ForceMode2D.Impulse);
+        m_rigidBody.velocity = new Vector2(m_rigidBody.velocity.x, 0); // Reset vertical velocity to prevent stacking jumps
+        m_rigidBody.AddForce(new Vector2(0, m_jumpForce), ForceMode2D.Impulse); // Apply jump force only vertically
     }
+
 
     #endregion
 
@@ -151,7 +160,21 @@ public class PlayerMovement_Level3 : MonoBehaviour
     private bool OnGround()
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, m_groundCheckDist, m_groundLayer);
-        return hit.collider != null;
+        RaycastHit2D hit2 = Physics2D.Raycast(transform.position, Vector2.down, m_groundCheckDist, m_moveablePlatformLayer);
+        return hit.collider != null || hit2.collider != null;
+    }
+
+    private void AttachToPlatform()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, m_groundCheckDist, m_moveablePlatformLayer);
+        if (hit.collider != null)
+        {
+            this.transform.SetParent(hit.collider.transform);
+        }
+        else
+        {
+            this.transform.SetParent(null); 
+        }
     }
 
     /// <summary>

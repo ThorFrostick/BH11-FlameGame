@@ -7,20 +7,26 @@ public class Moveable_Object : MonoBehaviour
 {
     [SerializeField] private float m_maxSpeed;
     [SerializeField] private List<GameObject> m_waypoints;
-    
-    [Range(0,1)]
-    public float g_perSpeed;
 
+    [Range(0, 1)] public float g_perSpeed;
+    
     private float m_speed
     {
         get { return m_maxSpeed * g_perSpeed; }
     }
 
     private int m_count;
+    
+    private Rigidbody2D m_rigidbody;
 
     
     private bool m_isForward;
 
+    private void Start()
+    {
+        // m_rigidbody = this.GetComponent<Rigidbody2D>();
+        
+    }
 
     private void Update()
     {
