@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LevelEnd : MonoBehaviour
+public class LevelEnd_Level4 : MonoBehaviour
 {
-    //Get the Player game object.
-    GameObject m_Player;
-    
+    GameObject player;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.tag == "Player")
         {
-            SceneManager.LoadScene("Level 2");
+            SceneManager.LoadScene("Level 5");
         }
     }
 }
