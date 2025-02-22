@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TMPro;
 using UnityEngine;
 
-enum PlayerStates
+public enum PlayerStates
 {
     Still,
     Run,
@@ -25,6 +26,8 @@ public class PlayerMovement_Level1: MonoBehaviour
     //Remember to get the player's Rigidbody2D.
     Rigidbody2D m_Rb;
 
+    PlayerStates m_PlayerState;
+
 
     // Start is called before the first frame update
     void Start()
@@ -33,7 +36,7 @@ public class PlayerMovement_Level1: MonoBehaviour
         m_Rb = GetComponent<Rigidbody2D>();
         
         //Start the Player in the still state.
-        PlayerStates m_PlayerState = PlayerStates.Still;
+        m_PlayerState = PlayerStates.Still;
     }
 
     // Update is called once per frame
