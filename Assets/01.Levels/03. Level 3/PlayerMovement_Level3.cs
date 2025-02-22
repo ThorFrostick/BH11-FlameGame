@@ -98,7 +98,6 @@ public class PlayerMovement_Level3 : MonoBehaviour
                 // Transition to falling when the player’s upward velocity turns negative.
                 if (m_rigidBody.velocity.y < 0)
                 {
-                    Debug.Log("Change to falling");
                     m_currentState = PlayerStates.Falling;
                 }
                 break;
