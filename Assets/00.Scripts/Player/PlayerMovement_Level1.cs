@@ -49,22 +49,20 @@ public class PlayerMovement_Level1: MonoBehaviour
         //Check if the player pressed the A or Left Arrow keys
         if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
-            //m_Rb.AddForce(new Vector2(-1.0f, 0.0f));
-            gameObject.transform.Translate(Vector2.left * 5 * Time.deltaTime);
+            m_Rb.AddForce(new Vector2(-1.0f, 0.0f));
         }
 
         //If the player presses D or the Right Arrow key, apply a right force to them.
-        if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        else if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
-            //m_Rb.AddForce(new Vector2(1.0f, 0.0f));
-            gameObject.transform.Translate(Vector2.right * 5 * Time.deltaTime);
+            m_Rb.AddForce(new Vector2(1.0f, 0.0f));
         }
 
         //Finally, if the Player presses W or Space, apply an upward force to them.
-        if((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.Space)) && 
+        else if((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.Space)) && 
             (m_PlayerState == PlayerStates.Still || m_PlayerState == PlayerStates.Run))
         {
-            m_Rb.AddForce(new Vector2(0.0f, 20.0f));
+            m_Rb.AddForce(new Vector2(0.0f, 40.0f));
         }
     }
 
@@ -99,7 +97,7 @@ public class PlayerMovement_Level1: MonoBehaviour
         else if(m_PlayerState == PlayerStates.Run)
         {
             //If the X velocity is less than 0.2 in either direction, then they will return to Resting.
-            if(m_Velocity.x < 0.5f && m_Velocity.x > -0.5f)
+            if(m_Velocity.x < 0.2f && m_Velocity.x > -0.2f)
             {
                 m_PlayerState = PlayerStates.Still;
             }
