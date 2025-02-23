@@ -7,12 +7,21 @@ public class Moveable_Object : MonoBehaviour
 {
     [SerializeField] private float m_maxSpeed;
     [SerializeField] private List<GameObject> m_waypoints;
+    [SerializeField] private bool m_isAutoMove;
 
     [Range(0, 1)] public float g_perSpeed;
+    [Range(0, 1)] public float g_perDistance;
+
+    private Vector3 m_rangeBar;
     
     private float m_speed
     {
         get { return m_maxSpeed * g_perSpeed; }
+    }
+
+    public bool IsAuto
+    {
+        get{return m_isAutoMove;}
     }
 
     private int m_count;
@@ -24,19 +33,27 @@ public class Moveable_Object : MonoBehaviour
 
     private void Start()
     {
-        // m_rigidbody = this.GetComponent<Rigidbody2D>();
+        m_rangeBar = (m_waypoints[1].transform.position - m_waypoints[0].transform.position);
         
     }
 
     private void Update()
     {
-        Move();
+        if (m_isAutoMove)
+        {
+            AutoMove();
+        }
+        else
+        {
+            MoveByMouse();
+        }
+     
     }
 
     /// <summary>
-    /// Move the movable object back and forth
+    /// AutoMove the movable object back and forth
     /// </summary>
-    private void Move()
+    private void AutoMove()
     {
         if (Vector2.Distance(transform.position, m_waypoints[m_count].transform.position) > 0.5f)
         {
@@ -55,6 +72,14 @@ public class Moveable_Object : MonoBehaviour
                 m_count++;
             }
         }
+    }
+
+    /// <summary>
+    /// Move by draging the position
+    /// </summary>
+    private void MoveByMouse()
+    {
+        this.transform.position = m_waypoints[0].transform.position + m_rangeBar* g_perDistance;
     }
     
 

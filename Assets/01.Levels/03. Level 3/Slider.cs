@@ -18,15 +18,16 @@ public class Slider : MonoBehaviour
     [SerializeField] private bool m_isGizmos;
 
     [Header("Settings")]
+    [SerializeField] private Moveable_Object m_moveableObject;
     [SerializeField] private List<SliderPoint> m_sliderPoints = new List<SliderPoint>();
     [SerializeField] private float m_radius;
 
+    
     [SerializeField] private Color m_highlightColor;
     [SerializeField] private Color m_selectedColor;
     [SerializeField] private Color m_normalColor;
 
     private SpriteRenderer m_spriteRenderer;
-    private Moveable_Object m_moveableObject;
     private SliderPoint m_currentPoint;
 
     private Vector2 m_mousePos;
@@ -35,10 +36,21 @@ public class Slider : MonoBehaviour
     private void Start()
     {
         m_spriteRenderer = GetComponent<SpriteRenderer>();
-        m_moveableObject = FindObjectOfType<Moveable_Object>();
-
+        
         // Initialize to the rightmost slider point
-        m_currentPoint = m_sliderPoints[m_sliderPoints.Count - 1];
+        SliderPoint cloestPoint = new SliderPoint();
+        float minDistance = float.MaxValue;
+        foreach (SliderPoint sliderPoint in m_sliderPoints)
+        {
+            float distance = Vector2.Distance(sliderPoint.GameObject.transform.position, transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                cloestPoint = sliderPoint;
+            }
+            
+        }
+        m_currentPoint = cloestPoint;
         m_moveableObject.g_perSpeed = m_currentPoint.SpeedPer;
     }
 
@@ -57,7 +69,11 @@ public class Slider : MonoBehaviour
         {
             m_isDragging = false;
             RoundPositionToNearestPoint();
-            m_moveableObject.g_perSpeed = m_currentPoint.SpeedPer;
+            if (m_moveableObject.IsAuto)
+            {
+                m_moveableObject.g_perSpeed = m_currentPoint.SpeedPer;
+            }
+           
         }
 
         // If dragging, move the slider
@@ -68,6 +84,17 @@ public class Slider : MonoBehaviour
             float x = Mathf.Clamp(m_mousePos.x,
                 m_sliderPoints[0].GameObject.transform.position.x,
                 m_sliderPoints[m_sliderPoints.Count - 1].GameObject.transform.position.x);
+            
+            if (!m_moveableObject.IsAuto)
+            {
+                // Clamp the normalized value to the range of [0, 1]
+                float normalizedValue = NormalizeValue(m_mousePos.x, m_sliderPoints[0].GameObject.transform.position.x,
+                    m_sliderPoints[m_sliderPoints.Count - 1].GameObject.transform.position.x);
+    
+                // Ensure that the value stays within the 0-1 range
+                m_moveableObject.g_perDistance = Mathf.Clamp01(normalizedValue);
+            }
+
 
             transform.position = new Vector2(x, transform.position.y);
         }
@@ -104,6 +131,11 @@ public class Slider : MonoBehaviour
         }
         transform.position = nearestPos;
         m_currentPoint = nearestPoint;
+    }
+    
+    float NormalizeValue(float value, float min, float max)
+    {
+        return (value - min) / (max - min);
     }
 
     private bool isNear()

@@ -11,5 +11,8 @@ namespace _00.Scripts.Manager
         
         //Tags:
         public static string g_playerTag = "Player";
+        
+        //Layers;
+        public static string g_moveablePlatform = "MoveablePlatform";
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _00.Scripts.Manager;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -188,8 +189,24 @@ public class PlayerMovement_Level3 : MonoBehaviour
     
     private bool OnGround()
     {
-        Bounds bounds = m_collider2D.bounds;
-        return Physics2D.BoxCast(this.transform.position + m_groundCheckOffset, new Vector2(m_groundCheckWidth, m_groundCheckDist), 0f, Vector2.down,m_groundCheckDist , m_groundLayer);
+        bool onMoveableObj = false;
+        Collider2D[] collider2Ds =
+            Physics2D.OverlapBoxAll(this.transform.position + m_groundCheckOffset, new Vector2(m_groundCheckWidth, m_groundCheckDist), 0);
+        foreach (Collider2D collider in collider2Ds)
+        {
+            if (collider.gameObject.layer == LayerMask.NameToLayer(Constant.g_moveablePlatform))
+            {
+                onMoveableObj = true;
+                this.transform.SetParent(collider.transform);
+            }
+        }
+
+        if (!onMoveableObj)
+        {
+            this.transform.SetParent(null);
+        }
+        return Physics2D.BoxCast(this.transform.position + m_groundCheckOffset, new Vector2(m_groundCheckWidth, m_groundCheckDist), 0f, Vector2.down,m_groundCheckDist , m_groundLayer)
+            || onMoveableObj;
     }
 
     private bool FarGround()
