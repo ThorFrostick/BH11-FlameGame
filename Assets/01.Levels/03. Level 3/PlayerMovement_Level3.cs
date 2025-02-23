@@ -47,6 +47,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
     
     //Animation
     private Animator m_animator;
+    private bool m_faceRight;
     
     private Collider2D m_collider2D;
     
@@ -70,6 +71,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
     {
         HandleTimers();
         StateMachine();
+        FLip();
     }
 
     private void FixedUpdate()
@@ -95,6 +97,14 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
         float moveX = Input.GetAxisRaw("Horizontal");
         bool jump = m_jumpBufferCounter > 0 && m_coyoteTimeCounter > 0;
 
+        if (moveX > 0)
+        {
+            m_faceRight = true;
+        }else if (moveX < 0)
+        {
+            m_faceRight = false;
+        }
+        
         switch (m_currentState)
         {
             case PlayerStates.Still:
@@ -122,7 +132,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
                     m_currentState = PlayerStates.Jump;
                 }
                 Move(moveX);
-                m_animator.Play("Player_Run");
+                m_animator.Play("Player_Walk");
                 break;
                 
             case PlayerStates.Jump:
@@ -203,6 +213,19 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
         {
             m_rigidBody.gravityScale = m_gravityScale;
         }
+    }
+
+    private void FLip()
+    {
+        if (m_faceRight)
+        {
+            this.transform.rotation = Quaternion.Euler(0,0,0);
+        }
+        else
+        {
+            this.transform.rotation = Quaternion.Euler(0,180,0);
+        }
+        
     }
 
     
