@@ -1784,7 +1784,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b0200582280eee4bbbb4de8b607c5d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isGizmos: 1
   m_targetSceneName: Level 2
+  m_width: 0.85
+  m_height: 1.86
 --- !u!1 &1546737490
 GameObject:
   m_ObjectHideFlags: 0
@@ -1799,7 +1802,7 @@ GameObject:
   - component: {fileID: 1546737492}
   - component: {fileID: 1546737491}
   m_Layer: 0
-  m_Name: Player (1)
+  m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1973,7 +1976,7 @@ Transform:
   m_GameObject: {fileID: 1546737490}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.9, y: -0.31, z: 0}
+  m_LocalPosition: {x: 22.15, y: -1.56, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

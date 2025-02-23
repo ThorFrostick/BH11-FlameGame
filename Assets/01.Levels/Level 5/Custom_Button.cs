@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace _01.Levels.Level_5
 {
-    public abstract class Button : MonoBehaviour
+    public abstract class Custom_Button : MonoBehaviour
     {
         [Header("Debug")] 
         [SerializeField] protected bool m_isGizmos;
@@ -20,15 +20,16 @@ namespace _01.Levels.Level_5
         protected Vector2 m_mousPos;
     
         protected SpriteRenderer m_spriteRenderer;
-
-
+        
         protected virtual void Start()
         {
             m_spriteRenderer = GetComponent<SpriteRenderer>();
         }
         protected virtual void Update()
         {
-            bool isClicked = Input.GetMouseButton(0);
+            bool isClicked = Input.GetMouseButtonDown(0);
+            m_mousPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            
             if (isClicked && isInsideRectangle())
             {
                 m_selectedColor.a = 1;
