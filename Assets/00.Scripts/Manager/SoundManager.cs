@@ -21,6 +21,5 @@ public class SoundManager : MonoBehaviour
     public void PlayWalk(AudioClip sound)
     {
         source.PlayOneShot(sound);
-        source.Pause();
     }
 }
