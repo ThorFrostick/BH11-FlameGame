@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _00.Scripts.Manager;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -12,7 +13,7 @@ public struct SliderPoint
 }
 
 [RequireComponent(typeof(SpriteRenderer))]
-public class Slider : MonoBehaviour
+public class Slider : MonoBehaviour, IResetable
 {
     [Header("Debug")]
     [SerializeField] private bool m_isGizmos;
@@ -32,7 +33,11 @@ public class Slider : MonoBehaviour
 
     private Vector2 m_mousePos;
     private bool m_isDragging = false; // New flag for dragging
-
+    private IResetable _resetableImplementation;
+    
+    //Reset
+    private SliderPoint m_resetPoint;
+    private float m_resetPerSpeed;
     private void Start()
     {
         m_spriteRenderer = GetComponent<SpriteRenderer>();
@@ -52,6 +57,10 @@ public class Slider : MonoBehaviour
         }
         m_currentPoint = cloestPoint;
         m_moveableObject.g_perSpeed = m_currentPoint.SpeedPer;
+        
+        //Asign reset data
+        m_resetPoint = cloestPoint;
+        m_resetPerSpeed = m_currentPoint.SpeedPer;
     }
 
     private void Update()
@@ -152,4 +161,10 @@ public class Slider : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, m_radius);
     }
     #endif
+    public void Reset()
+    {
+        m_currentPoint = m_resetPoint;
+        m_moveableObject.g_perSpeed = m_resetPerSpeed;
+        this.transform.position = m_resetPoint.GameObject.transform.position;
+    }
 }

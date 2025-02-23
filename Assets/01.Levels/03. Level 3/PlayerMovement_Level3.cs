@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class PlayerMovement_Level3 : MonoBehaviour
+public class PlayerMovement_Level3 : MonoBehaviour, IResetable
 {
     private Rigidbody2D m_rigidBody;
     
@@ -47,11 +47,18 @@ public class PlayerMovement_Level3 : MonoBehaviour
     
     private Collider2D m_collider2D;
     
+    //Reset
+    private PlayerStates m_resetState;
+    private Vector2 m_resetPosition;
+    
     private void Start()
     {
         m_rigidBody = GetComponent<Rigidbody2D>();
         m_collider2D = GetComponent<Collider2D>();
         m_currentState = PlayerStates.Still;
+        
+        m_resetPosition = this.transform.position;
+        m_resetState = PlayerStates.Still;
     }
 
     private void Update()
@@ -231,4 +238,9 @@ public class PlayerMovement_Level3 : MonoBehaviour
         Handles.Label(transform.position + Vector3.up * 2, m_currentState.ToString());
     }
     #endif
+    public void Reset()
+    {
+        m_currentState = m_resetState;
+        this.transform.position = m_resetPosition;
+    }
 }
