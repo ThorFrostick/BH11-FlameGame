@@ -4575,7 +4575,7 @@ MonoBehaviour:
   m_jumpHoldTime: 0.2
   m_jumpBoostMultiplier: 1.5
   jumpAudio: {fileID: 8300000, guid: d625bfe19c9c9084ca46907189e41b7c, type: 3}
-  walkAudio: {fileID: 8300000, guid: 9f39ea4594254c9449bb292139061bed, type: 3}
+  walkAudio: {fileID: 8300000, guid: 168d0904f7201124684d3bf32720b522, type: 3}
 --- !u!61 &1565456183
 BoxCollider2D:
   m_ObjectHideFlags: 0
