@@ -48,6 +48,10 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
     //Animation
     private Animator m_animator;
     private bool m_faceRight;
+
+    //SFX
+    [SerializeField] private AudioClip jumpAudio;
+    [SerializeField] private AudioClip walkAudio;
     
     private Collider2D m_collider2D;
     
@@ -187,6 +191,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
         float movement = speedDifference * acceleration * factor * Time.deltaTime;
         
         m_rigidBody.velocity += new Vector2(movement, 0);
+        SoundManager.instance.PlayWalk(walkAudio);
     }
 
     private void Jump()
@@ -197,6 +202,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
         m_jumpBufferCounter = 0;
         m_isJumping = true;
         m_jumpTimeCounter = m_jumpHoldTime;
+        SoundManager.instance.PlayJump(jumpAudio);
     }
 
     private void ApplyGravityModifiers()
