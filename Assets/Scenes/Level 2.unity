@@ -472,7 +472,6 @@ MonoBehaviour:
   m_highlightedColor: {r: 0.6698113, g: 0.6698113, b: 0.66665184, a: 1}
   m_affectedObjects:
   - {fileID: 1530547903}
-  - {fileID: 0}
   - {fileID: 1784067183}
 --- !u!95 &249686101
 Animator:
@@ -937,7 +936,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -85810970, guid: 131cc683104a449f4baddad99d0a7469, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -2513,9 +2512,7 @@ MonoBehaviour:
   m_restables:
   - {fileID: 807403825}
   - {fileID: 1530547903}
-  - {fileID: 0}
   - {fileID: 1784067183}
-  - {fileID: 1862821172}
   m_fallThreshold: -8.85
 --- !u!4 &1252758770
 Transform:
@@ -2628,7 +2625,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1530547904
 Transform:
   m_ObjectHideFlags: 0
@@ -3189,7 +3186,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1784067184
 Transform:
   m_ObjectHideFlags: 0
@@ -3350,7 +3347,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1862821173
 MonoBehaviour:
   m_ObjectHideFlags: 0
