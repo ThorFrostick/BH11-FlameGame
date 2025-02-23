@@ -4340,8 +4340,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isGizmos: 1
   m_targetSceneName: End Screen
-  m_width: 4.94
-  m_height: 4.97
+  m_width: 4.18
+  m_height: 4.13
 --- !u!4 &1477991339
 Transform:
   m_ObjectHideFlags: 0
