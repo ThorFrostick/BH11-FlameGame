@@ -33,6 +33,7 @@ namespace _01.Levels.Level_5
             {
                 m_selectedColor.a = 1;
                 m_spriteRenderer.color =  m_selectedColor;
+                OnClicked();
             }
             else
             {
@@ -48,6 +49,8 @@ namespace _01.Levels.Level_5
                 }
             }
         }
+
+        public abstract void OnClicked();
 
     
         protected bool isInsideRectangle()

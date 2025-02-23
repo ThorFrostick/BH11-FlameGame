@@ -8,101 +8,130 @@ using UnityEngine.Serialization;
 public class PlayerMovement_Level3 : MonoBehaviour
 {
     private Rigidbody2D m_rigidBody;
-
+    
     [Header("Debug")] 
     [SerializeField] private bool m_isGizmos;
     
     [Header("Detection")]
     [SerializeField] private LayerMask m_groundLayer;
     [SerializeField] private LayerMask m_moveablePlatformLayer;
-
-    // Use a shorter distance to check if we're grounded.
+    
     [SerializeField] private float m_groundCheckDist = 0.5f;
-    // Use a longer distance to determine if the ground is far below.
     [SerializeField] private float m_airCheckDistance = 2f;
+    [SerializeField] private Vector3 m_groundCheckOffset;
+    [SerializeField] private float m_groundCheckWidth = 0.5f;
     
     [Header("Movement")]
-    [FormerlySerializedAs("speed")]
-    [Tooltip("The default velocity of the player")]
-    [SerializeField] private float m_speed = 10;
-    [SerializeField] private float m_jumpForce = 10;
-
-    [Tooltip("The linear drag")] 
-    [SerializeField] private float m_linearDrag = 2;
+    [SerializeField] private float m_maxSpeed = 10f;
+    [SerializeField] private float m_acceleration = 20f;
+    [SerializeField] private float m_deceleration = 25f;
+    [SerializeField] private float m_jumpForce = 10f;
+    [SerializeField] private float m_linearDrag = 2f;
+    
+    [Header("Advanced Movement")]
+    [SerializeField] private float m_coyoteTime = 0.2f;
+    [SerializeField] private float m_jumpBufferTime = 0.2f;
+    [SerializeField] private float m_airControlFactor = 0.5f;
+    [SerializeField] private float m_fastFallMultiplier = 2.5f;
+    [SerializeField] private float m_gravityScale = 1f;
+    [SerializeField] private float m_jumpHoldTime = 0.3f;
+    [SerializeField] private float m_jumpBoostMultiplier = 2.0f;
 
     private PlayerStates m_currentState;
-
     private bool m_isFaceRight;
-    private Vector2 m_prevPosition;
+    private float m_coyoteTimeCounter;
+    private float m_jumpBufferCounter;
+    private float m_jumpTimeCounter;
+    private bool m_isJumping;
     
-    private Moveable_Object m_moveableObject;
-    private Vector2 m_moveableVelocity;
+    private Collider2D m_collider2D;
     
     private void Start()
     {
         m_rigidBody = GetComponent<Rigidbody2D>();
+        m_collider2D = GetComponent<Collider2D>();
         m_currentState = PlayerStates.Still;
-        m_moveableObject = FindObjectOfType<Moveable_Object>();
     }
 
     private void Update()
     {
+        HandleTimers();
         StateMachine();
-        AttachToPlatform();
-
     }
 
     private void FixedUpdate()
     {
-        // Optional: any fixed update physics code can go here.
+        ApplyGravityModifiers();
+    }
+
+    private void HandleTimers()
+    {
+        if (OnGround())
+            m_coyoteTimeCounter = m_coyoteTime;
+        else
+            m_coyoteTimeCounter -= Time.deltaTime;
+        
+        if (Input.GetKeyDown(KeyCode.Space))
+            m_jumpBufferCounter = m_jumpBufferTime;
+        else
+            m_jumpBufferCounter -= Time.deltaTime;
     }
 
     private void StateMachine()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        bool jump = Input.GetKeyDown(KeyCode.Space);
-        
+        float moveX = Input.GetAxisRaw("Horizontal");
+        bool jump = m_jumpBufferCounter > 0 && m_coyoteTimeCounter > 0;
+
         switch (m_currentState)
         {
             case PlayerStates.Still:
-                if (jump && OnGround())
+                if (jump)
                 {
-                    m_prevPosition = transform.position;
                     Jump();
                     m_currentState = PlayerStates.Jump;
                 }
-                else if (Mathf.Abs(moveX) > 0 && OnGround())
+                else if (Mathf.Abs(moveX) > 0)
                 {
                     m_currentState = PlayerStates.Run;
                 }
                 break;
-                
+            
             case PlayerStates.Run:
                 if (Mathf.Approximately(moveX, 0))
                 {
                     m_currentState = PlayerStates.Still;
                 }
-                else if (jump && OnGround())
+                else if (jump)
                 {
-                    m_prevPosition = transform.position;
                     Jump();
                     m_currentState = PlayerStates.Jump;
-                    break;
                 }
-                Move();
+                Move(moveX);
                 break;
                 
             case PlayerStates.Jump:
-                // Transition to midair if we are not grounded and the ground is far below.
                 if (!OnGround() && FarGround())
                 {
-                    m_prevPosition = transform.position;
                     m_currentState = PlayerStates.Midair;
+                }
+                
+                if (Input.GetKey(KeyCode.Space) && m_jumpTimeCounter > 0)
+                {
+                    m_rigidBody.velocity = new Vector2(m_rigidBody.velocity.x, m_jumpForce * m_jumpBoostMultiplier);
+                    m_jumpTimeCounter -= Time.deltaTime;
+                }
+                else
+                {
+                    m_isJumping = false;
+                }
+
+                if (OnGround() && !FarGround())
+                {
+                    m_currentState = PlayerStates.Still;
                 }
                 break;
                 
             case PlayerStates.Midair:
-                // Transition to falling when the player’s upward velocity turns negative.
                 if (m_rigidBody.velocity.y < 0)
                 {
                     m_currentState = PlayerStates.Falling;
@@ -118,97 +147,71 @@ public class PlayerMovement_Level3 : MonoBehaviour
         }
     }
 
-    #region Core Movement
-
-    /// <summary>
-    /// Move the player horizontally.
-    /// </summary>
-    private void Move()
+    private void Move(float moveX)
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        if (Mathf.Approximately(moveX, -1))
-        {
-            m_isFaceRight = false;
-        }
-        else if (Mathf.Approximately(moveX, 1))
-        {
-            m_isFaceRight = true;   
-        }
+        float targetSpeed = moveX * m_maxSpeed;
+        float acceleration = Mathf.Abs(moveX) > 0 ? m_acceleration : m_deceleration;
+
+        float factor = OnGround() ? 1f : m_airControlFactor;
+        float speedDifference = targetSpeed - m_rigidBody.velocity.x;
+        float movement = speedDifference * acceleration * factor * Time.deltaTime;
         
-        Vector2 moveDirection = new Vector2(moveX, 0).normalized;
-        m_rigidBody.velocity = new Vector2(moveDirection.x * m_speed, m_rigidBody.velocity.y);
-        m_rigidBody.drag = m_linearDrag;
+        m_rigidBody.velocity += new Vector2(movement, 0);
     }
 
-    /// <summary>
-    /// Apply upward force to make the player jump.
-    /// </summary>
     private void Jump()
     {
-        m_rigidBody.velocity = new Vector2(m_rigidBody.velocity.x, 0); // Reset vertical velocity to prevent stacking jumps
-        m_rigidBody.AddForce(new Vector2(0, m_jumpForce), ForceMode2D.Impulse); // Apply jump force only vertically
+        m_rigidBody.velocity = new Vector2(m_rigidBody.velocity.x * 1.2f, 0);
+        m_rigidBody.AddForce(new Vector2(0, m_jumpForce), ForceMode2D.Impulse);
+        m_coyoteTimeCounter = 0;
+        m_jumpBufferCounter = 0;
+        m_isJumping = true;
+        m_jumpTimeCounter = m_jumpHoldTime;
     }
 
-
-    #endregion
-
-    #region Detection
-
-    /// <summary>
-    /// Check if the player is on the ground using a short raycast.
-    /// </summary>
-    private bool OnGround()
+    private void ApplyGravityModifiers()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, m_groundCheckDist, m_groundLayer);
-        RaycastHit2D hit2 = Physics2D.Raycast(transform.position, Vector2.down, m_groundCheckDist, m_moveablePlatformLayer);
-        return hit.collider != null || hit2.collider != null;
-    }
-
-    private void AttachToPlatform()
-    {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, m_groundCheckDist, m_moveablePlatformLayer);
-        if (hit.collider != null)
+        if (m_rigidBody.velocity.y < 0)
         {
-            this.transform.SetParent(hit.collider.transform);
+            m_rigidBody.gravityScale =m_fastFallMultiplier;
+        }
+        else if (m_rigidBody.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
+        {
+            m_rigidBody.gravityScale = m_gravityScale * 3f;
         }
         else
         {
-            this.transform.SetParent(null); 
+            m_rigidBody.gravityScale = m_gravityScale;
         }
     }
 
-    /// <summary>
-    /// Check if the player is far from the ground using a longer raycast.
-    /// Returns true if no ground is detected within the specified distance.
-    /// </summary>
-    private bool FarGround()
+    
+    private bool OnGround()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, m_airCheckDistance, m_groundLayer);
-        return hit.collider == null;
+        Bounds bounds = m_collider2D.bounds;
+        return Physics2D.BoxCast(this.transform.position + m_groundCheckOffset, new Vector2(m_groundCheckWidth, m_groundCheckDist), 0f, Vector2.down,m_groundCheckDist , m_groundLayer);
     }
 
-    #endregion
+    private bool FarGround()
+    {
+        Bounds bounds = m_collider2D.bounds;
+        return !Physics2D.BoxCast(this.transform.position + m_groundCheckOffset, new Vector2(m_groundCheckWidth, m_airCheckDistance), 0f, Vector2.down,m_airCheckDistance , m_groundLayer);
+    }
 
     #if UNITY_EDITOR
-    #region Debug
-
     public void OnDrawGizmos()
     {
         if (!m_isGizmos) return;
         
-        // Draw a red line for the ground check.
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * m_groundCheckDist);
+        Gizmos.DrawWireCube(this.transform.position + m_groundCheckOffset, new Vector3(m_groundCheckWidth, m_groundCheckDist));
+
         
-        // Draw a cyan line for the air check.
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * m_airCheckDistance);
-        
-        // Draw the current state above the player.
+        Gizmos.DrawWireCube(this.transform.position + m_groundCheckOffset, new Vector3(m_groundCheckWidth, m_airCheckDistance));
+
         Handles.color = Color.white;
         Handles.Label(transform.position + Vector3.up * 2, m_currentState.ToString());
     }
-    
-    #endregion  
     #endif
 }

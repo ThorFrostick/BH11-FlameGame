@@ -1,18 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
+using _00.Scripts.Manager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelEnd : MonoBehaviour
 {
-    //Get the Player game object.
-    GameObject m_Player;
-    
-    private void OnTriggerEnter2D(Collider2D collision)
+    [SerializeField] private string m_targetSceneName;
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if(collision.tag == "Player")
+        if (other.gameObject.CompareTag(Constant.g_playerTag))
         {
-            SceneManager.LoadScene("Level 2");
+            Debug.Log("Log new scene");
+            LoadTargetScreen();
         }
+    }
+
+    void LoadTargetScreen()
+    {
+        // Load the target scene specified in the editor
+        if (!string.IsNullOrEmpty( m_targetSceneName))
+        {
+            SceneManager.LoadScene( m_targetSceneName);
+        }
+#if UNITY_EDITOR
+        else
+        {
+            Debug.LogWarning("Target scene is not set.");
+        }
+#endif
+
     }
 }
