@@ -37,13 +37,16 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
     [SerializeField] private float m_gravityScale = 1f;
     [SerializeField] private float m_jumpHoldTime = 0.3f;
     [SerializeField] private float m_jumpBoostMultiplier = 2.0f;
-
+    
     private PlayerStates m_currentState;
     private bool m_isFaceRight;
     private float m_coyoteTimeCounter;
     private float m_jumpBufferCounter;
     private float m_jumpTimeCounter;
     private bool m_isJumping;
+    
+    //Animation
+    private Animator m_animator;
     
     private Collider2D m_collider2D;
     
@@ -55,6 +58,8 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
     {
         m_rigidBody = GetComponent<Rigidbody2D>();
         m_collider2D = GetComponent<Collider2D>();
+        m_animator = GetComponent<Animator>();
+        
         m_currentState = PlayerStates.Still;
         
         m_resetPosition = this.transform.position;
@@ -102,6 +107,8 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
                 {
                     m_currentState = PlayerStates.Run;
                 }
+                
+                m_animator.Play("Player_Idle");
                 break;
             
             case PlayerStates.Run:
@@ -115,6 +122,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
                     m_currentState = PlayerStates.Jump;
                 }
                 Move(moveX);
+                m_animator.Play("Player_Run");
                 break;
                 
             case PlayerStates.Jump:
@@ -122,7 +130,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
                 {
                     m_currentState = PlayerStates.Midair;
                 }
-                
+                m_animator.Play("Player_Jump");
                 if (Input.GetKey(KeyCode.Space) && m_jumpTimeCounter > 0)
                 {
                     m_rigidBody.velocity = new Vector2(m_rigidBody.velocity.x, m_jumpForce * m_jumpBoostMultiplier);
@@ -137,6 +145,8 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
                 {
                     m_currentState = PlayerStates.Still;
                 }
+                
+                
                 break;
                 
             case PlayerStates.Midair:
@@ -144,6 +154,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
                 {
                     m_currentState = PlayerStates.Falling;
                 }
+                m_animator.Play("Player_MidAir");
                 break;
                 
             case PlayerStates.Falling:
@@ -151,6 +162,7 @@ public class PlayerMovement_Level3 : MonoBehaviour, IResetable
                 {
                     m_currentState = PlayerStates.Still;
                 }
+                m_animator.Play("Player_MidAir");
                 break;
         }
     }
