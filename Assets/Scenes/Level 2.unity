@@ -728,8 +728,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isGizmos: 1
   m_targetSceneName: Level 3
-  m_width: 4.94
-  m_height: 4.97
+  m_width: 2.61
+  m_height: 4.15
 --- !u!4 &639531611
 Transform:
   m_ObjectHideFlags: 0
